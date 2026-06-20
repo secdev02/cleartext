@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ClearText — eBPF TLS plaintext interceptor
+cleartext — eBPF TLS plaintext interceptor
 
 Attaches uprobes to SSL_write / SSL_read in libssl.so (OpenSSL or BoringSSL),
 captures plaintext data in-flight, and streams events to stdout or a JSON log file.

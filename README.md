@@ -1,4 +1,4 @@
-# ClearText
+# cleartext
 
 > eBPF uprobe TLS interceptor — read plaintext before the cipher touches it.
 
@@ -10,7 +10,7 @@
 \____/ |_| \___|\__,_||_|  \/    \___||___/
 ```
 
-ClearText attaches `uprobe`s to `SSL_write` and `SSL_read` inside `libssl.so`
+cleartext attaches `uprobe`s to `SSL_write` and `SSL_read` inside `libssl.so`
 (OpenSSL 1.1.1 / 3.x, BoringSSL), capturing plaintext **before encryption** and
 **after decryption** — no keys, no MITM, no certificate pinning issues.
 
