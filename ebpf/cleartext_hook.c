@@ -63,9 +63,6 @@ static __always_inline void emit_return(struct pt_regs *ctx, u8 is_write)
         return;
     }
 
-    struct tls_event_t *ev = tls_events.ringbuf_reserve(sizeof(*ev));
-    /* BCC older kernels fall back to perf_submit — handled in Python side. */
-
     struct tls_event_t ev_stack = {};
     ev_stack.pid          = (u32)(id >> 32);
     ev_stack.tid          = (u32)id;
