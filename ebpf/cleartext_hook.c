@@ -42,7 +42,8 @@ static __always_inline void record_entry(struct pt_regs *ctx,
                                          void *buf, int len)
 {
     u64 id = bpf_get_current_pid_tgid();
-    struct pending_t p = {};
+    struct pending_t p;
+    __builtin_memset(&p, 0, sizeof(p));
     p.buf_addr = (u64)(uintptr_t)buf;
     p.buf_len  = (u32)len;
     pending_map.update(&id, &p);
@@ -63,7 +64,8 @@ static __always_inline void emit_return(struct pt_regs *ctx, u8 is_write)
         return;
     }
 
-    struct tls_event_t ev_stack = {};
+    struct tls_event_t ev_stack;
+    __builtin_memset(&ev_stack, 0, sizeof(ev_stack));
     ev_stack.pid          = (u32)(id >> 32);
     ev_stack.tid          = (u32)id;
     ev_stack.timestamp_ns = bpf_ktime_get_ns();
