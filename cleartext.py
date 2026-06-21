@@ -241,20 +241,34 @@ def main() -> None:
     }
 
     attached: list[str] = []
+    entry_only: list[str] = []
+
     for sym, (entry_fn, ret_fn) in sym_map.items():
         if sym not in symbols:
             continue
+
+        # Entry probe — hard failure if this doesn't work
         try:
-            bpf.attach_uprobe(  name=libssl, sym=sym, fn_name=entry_fn, pid=args.pid or -1)
-            bpf.attach_uretprobe(name=libssl, sym=sym, fn_name=ret_fn,  pid=args.pid or -1)
+            bpf.attach_uprobe(name=libssl, sym=sym, fn_name=entry_fn, pid=args.pid or -1)
+        except Exception as exc:
+            print(colour("[!] Failed to attach uprobe " + sym + ": " + str(exc), RED))
+            continue
+
+        # uretprobe — optional, falls back gracefully (common aarch64 kernel quirk)
+        try:
+            bpf.attach_uretprobe(name=libssl, sym=sym, fn_name=ret_fn, pid=args.pid or -1)
             attached.append(sym)
         except Exception as exc:
-            print(colour("[!] Failed to attach " + sym + ": " + str(exc), RED))
+            entry_only.append(sym)
+            print(colour("[~] uretprobe unavailable for " + sym + " (entry-only fallback): " + str(exc), YELLOW))
 
-    if not attached:
+    if not attached and not entry_only:
         sys.exit("[!] No probes attached — aborting.")
 
+    all_attached = attached + entry_only
     print(colour("[+] Attached probes: " + ", ".join(attached), GREEN))
+    if entry_only:
+        print(colour("[~] Entry-only probes: " + ", ".join(entry_only), YELLOW))
     if args.pid:
         print(colour("    Filtering on PID " + str(args.pid), DIM))
     if args.name:
